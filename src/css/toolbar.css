@@ -1,0 +1,55 @@
+.toolbar {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    background-color: white;
+ }
+  
+  /* Left column */
+  .toolbar-left {
+    width: 50%;
+    display: flex;
+    flex-wrap: wrap;
+     
+  }
+  
+  /* Right column */
+  .toolbar-right {
+    width: 50%;
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  /* Individual buttons */
+  .toolbar button, .btn {
+    width: 40px;
+    height: 40px;
+    margin: 8px;
+    background-color: #f7f7f7;
+    border: 1px solid #be06be;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgb(0, 0, 0);
+    font-size: 20px;
+  }
+  
+@media (max-width: 500px) {
+    .toolbar {
+      grid-template-columns: 1fr;
+    }
+  }
+
+
+  label {
+    background-color: indigo;
+    color: white;
+    padding: 0.5rem;
+    font-family: sans-serif;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    margin-top: 1rem;
+  }
+  
