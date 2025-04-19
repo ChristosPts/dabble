@@ -1,0 +1,20 @@
+.canvas-settings {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+  
+ .canvas-zoom {
+  display: flex;
+  align-items: center;
+ }
+
+ .canvas-zoom div {
+  display: flex;
+  gap: 4px;
+ }
+
+ .canvas-zoom div {
+  display: flex;
+  gap: 4px;
+ }
