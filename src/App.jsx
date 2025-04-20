@@ -1,11 +1,10 @@
-import { useState } from 'react'
 import './App.css'
-import CanvasWrap from './components/CanvasWrap'
+import  Dabble from './pages/Dabble'
 
 function App() {
   return (
     <div className='App'>
-      <CanvasWrap/>
+      <Dabble/>
     </div>
   )
 }

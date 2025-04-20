@@ -1,17 +1,29 @@
 import React, { useState, useEffect } from 'react'
 import "../css/canvas-settings.css"
+import SnappingToggle from './SnappingToggle';
+import ExportButtons from './ExportButtons';
 
 function CanvasSettings({ canvas, dimensions, setDimensions }) {
   const [zoom, setZoom] = useState(100);
   const [width, setWidth] = useState(dimensions.width.toString())
   const [height, setHeight] = useState(dimensions.height.toString())
   const [isHandToolActive, setIsHandToolActive] = useState(false)
-  
+  const [bgColor, setBgColor] = useState('#ffffff') // Default background color
+  const [isTransparent, setIsTransparent] = useState(false) // Track transparency state
+
   // Update local state when dimensions change
   useEffect(() => {
     if (canvas) {
       setWidth(dimensions.width.toString())
       setHeight(dimensions.height.toString())
+      
+      // Initialize background color state from canvas
+      if (canvas.backgroundColor) {
+        setBgColor(canvas.backgroundColor)
+        setIsTransparent(false)
+      } else {
+        setIsTransparent(true)
+      }
     }
   }, [canvas, dimensions])
 
@@ -323,6 +335,38 @@ function CanvasSettings({ canvas, dimensions, setDimensions }) {
     setIsHandToolActive(!isHandToolActive)
   }
 
+  // Handle background color change
+  const handleBackgroundChange = (e) => {
+    const color = e.target.value
+    setBgColor(color) // Update the state for the color
+    setIsTransparent(false) // Uncheck transparent box when selecting a color
+    
+    if (canvas) {
+      canvas.backgroundColor = color
+      canvas.requestRenderAll()
+    }
+  }
+  
+  // Toggle background transparency
+  const toggleTransparent = () => {
+    const newTransparentState = !isTransparent
+    setIsTransparent(newTransparentState)
+    
+    if (canvas) {
+      if (newTransparentState) {
+        // Save current background color before setting to transparent
+        if (!isTransparent) {
+          setBgColor(canvas.backgroundColor || '#ffffff')
+        }
+        canvas.backgroundColor = null
+      } else {
+        // Restore background color
+        canvas.backgroundColor = bgColor
+      }
+      canvas.requestRenderAll()
+    }
+  }
+  
   return (
     <div className="canvas-settings">
       
@@ -357,13 +401,35 @@ function CanvasSettings({ canvas, dimensions, setDimensions }) {
         </div>
       </div>
       
-        <button 
-          className={`btn ${isHandToolActive ? "active" : ""}`} 
-          onClick={toggleHandTool}
-          title="Hand Tool"
-        >
-          <span role="img" aria-label="Hand Tool">✋</span> 
-        </button>
+      <button 
+        className={`btn ${isHandToolActive ? "active" : ""}`} 
+        onClick={toggleHandTool}
+        title="Hand Tool"
+      >
+        <span role="img" aria-label="Hand Tool">✋</span> 
+      </button>
+
+      <div className="background-controls">
+        <span>Background:</span>
+        <input 
+          type="color" 
+          value={bgColor}
+          onChange={handleBackgroundChange}
+          disabled={isTransparent}
+          title="Background Color"
+        />
+        <label title="Make Background Transparent">
+          <input 
+            type="checkbox"
+            checked={isTransparent}
+            onChange={toggleTransparent}
+          />
+          Transparent
+        </label>
+      </div>
+
+      <SnappingToggle canvas={canvas}/>
+      <ExportButtons canvas={canvas} />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { Circle, Rect, Triangle } from 'fabric'
 import React from 'react'
 import ImageUploader from './ImageUploader'
-
+ 
 function Toolbar({canvas}) {
 
   const addRectangle = () => {
@@ -42,6 +42,7 @@ function Toolbar({canvas}) {
         <div>
         <button onClick={addTriangle}>&#8420;</button>
         <button onClick={addCircle}>&#9711;</button>
+ 
         </div>
     </div>
   )

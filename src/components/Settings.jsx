@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 
-// Mapping of shape types 
 const shapeConfigs = {
   rect: ['width', 'height', 'color'],
   square: ['width', 'height', 'color'],
@@ -11,7 +10,7 @@ const shapeConfigs = {
 
 function Settings({ canvas }) {
   const [selectedObj, setSelectedObj] = useState(null)
-  //console.log(selectedObj)
+  console.log(selectedObj)
   const [settings, setSettings] = useState({
     width: '',
     height: '',
@@ -21,7 +20,8 @@ function Settings({ canvas }) {
 
   useEffect(() => {
     if (!canvas) return
-   // Handle selection events from the canvas
+    
+    // Handle selection events from the canvas
     const handleSelection = (e) => {
       const obj = e.selected ? e.selected[0] : e.target
       setSelectedObj(obj)
@@ -34,27 +34,62 @@ function Settings({ canvas }) {
       setSelectedObj(null)
       clearSettings()
     })
-
+    
+    // Set up keyboard event listener for delete key
+    const handleKeyDown = (e) => {
+      if ((e.key === 'Delete' || e.key === 'Backspace') && canvas.getActiveObject()) {
+        deleteSelectedObjects()
+      }
+    }
+    
+    document.addEventListener('keydown', handleKeyDown)
+    
     return () => {
       canvas.off('selection:created', handleSelection)
       canvas.off('selection:updated', handleSelection)
-      canvas.off('selection:cleared')
+      canvas.off('selection:cleared');
+      document.removeEventListener('keydown', handleKeyDown)
     }
   }, [canvas])
 
-    // Populate settings input values based on selected object's current properties
+  // Delete the currently selected object(s)
+  const deleteSelectedObjects = () => {
+    if (!canvas) return
+    
+    const activeObject = canvas.getActiveObject()
+    
+    if (activeObject) {
+      // If it's a group of objects
+      if (activeObject.type === 'activeSelection') {
+        // Remove all objects in the selection
+        activeObject.forEachObject((obj) => {
+          canvas.remove(obj)
+        })
+      } else {
+        // Remove the single selected object
+        canvas.remove(activeObject)
+      }
+      
+      // Clear selection and render canvas
+      canvas.discardActiveObject()
+      canvas.requestRenderAll()
+      
+      // Clear local state
+      setSelectedObj(null)
+      clearSettings()
+    }
+  }
+
+  // Populate settings input values based on selected object's current properties
   const populateSettings = (obj) => {
-    if (!obj) return
-
+    if (!obj) return;
     const { type, scaleX = 1, scaleY = 1, fill = '', width, height, radius } = obj
-
     const newSettings = {
       width: width ? Math.round(width * scaleX) : '',
       height: height ? Math.round(height * scaleY) : '',
       diameter: radius ? Math.round(radius * scaleX * 2) : '',
       color: fill || '',
     }
-
     setSettings(newSettings)
   }
 
@@ -63,28 +98,25 @@ function Settings({ canvas }) {
   }
 
   const updateObject = (key, value) => {
-    if (!selectedObj) return
-  
-
-    const numValue = parseFloat(value)
-
+    if (!selectedObj) return;
+ 
+    const numValue = parseFloat(value);
     switch (key) {
       case 'width':
-        selectedObj.set('width', numValue / selectedObj.scaleX)
-        break
+        selectedObj.set('width', numValue / selectedObj.scaleX);
+        break;
       case 'height':
-        selectedObj.set('height', numValue / selectedObj.scaleY)
-        break
+        selectedObj.set('height', numValue / selectedObj.scaleY);
+        break;
       case 'diameter':
-        selectedObj.set('radius', numValue / 2 / selectedObj.scaleX)
-        break
+        selectedObj.set('radius', numValue / 2 / selectedObj.scaleX);
+        break;
       case 'color':
-        selectedObj.set('fill', value)
-        break
+        selectedObj.set('fill', value);
+        break;
       default:
-        break
+        break;
     }
-
     selectedObj.setCoords()
     canvas.requestRenderAll()
   }
@@ -96,24 +128,39 @@ function Settings({ canvas }) {
   }
 
   const renderInput = (key) => {
-    const label = key.charAt(0).toUpperCase() + key.slice(1)
-    const type = key === 'color' ? 'color' : 'number'
-
+    const label = key.charAt(0).toUpperCase() + key.slice(1);
+    const type = key === 'color' ? 'color' : 'number';
     return (
-      <div key={key} >
+      <div key={key} style={{ marginBottom: '8px' }}>
         {label}: <input type={type} value={settings[key]} onChange={handleChange(key)}/>
       </div>
     )
   }
+
   // Determine which inputs to render based on selected object type
   const activeKeys = selectedObj ? shapeConfigs[selectedObj.type] || [] : []
-
+  
   return (
-    <div className="settings p-4 bg-gray-100 rounded-lg w-64">
+    <div className="settings">
       {selectedObj ? (
         <div>
           <h2>{selectedObj.type} Settings</h2>
           {activeKeys.map(renderInput)}
+          
+          {/* Delete button */}
+          <button 
+            style={{ 
+              marginTop: '10px', 
+              backgroundColor: '#ff4444', 
+              color: 'white', 
+              border: 'none', 
+              padding: '5px 10px', 
+              cursor: 'pointer' 
+            }}
+            onClick={deleteSelectedObjects}
+          >
+            Delete Object
+          </button>
         </div>
       ) : (
         <p>No object selected</p>
