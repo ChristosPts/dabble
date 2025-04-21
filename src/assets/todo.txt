@@ -1,0 +1,14 @@
+            TO DO
+------------------------------
+1. add layers (layer names, hidding, opacity, lock, moving index)
+2. add croping
+3. add text (colors, sizes, etc)
+4. add object shadows
+5. add object effects (hue etc)
+6. add eraser
+7. add line tool
+8. add drawin tool 
+9. multi select deletion
+10. show object position?
+11. object outline colors/width
+

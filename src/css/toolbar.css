@@ -5,7 +5,7 @@
     background-color: rgb(163, 163, 163);
  }
   
-  /* Left column */
+ 
   .toolbar-left {
     width: 50%;
     display: flex;
@@ -13,14 +13,14 @@
      
   }
   
-  /* Right column */
+ 
   .toolbar-right {
     width: 50%;
     display: flex;
     flex-wrap: wrap;
   }
   
-  /* Individual buttons */
+ 
   .toolbar button, .btn {
     width: 40px;
     height: 40px;
@@ -43,13 +43,23 @@
   }
 
 
-  label {
-    background-color: indigo;
-    color: white;
-    padding: 0.5rem;
-    font-family: sans-serif;
-    border-radius: 0.3rem;
-    cursor: pointer;
-    margin-top: 1rem;
+  .top-toolbar {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    background-color: #f0f0f0;
+   
   }
   
+  .bottom-toolbar {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    background-color: #f0f0f0;
+    border-top: 1px solid #ddd;
+  }
+  
+  .canvas-zoom {
+    display: flex;
+    align-items: center;
+  }

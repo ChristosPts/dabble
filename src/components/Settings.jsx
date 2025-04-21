@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import LayerLists from './LayerLists';
 
 const shapeConfigs = {
   rect: ['width', 'height', 'color'],
@@ -131,7 +132,7 @@ function Settings({ canvas }) {
     const label = key.charAt(0).toUpperCase() + key.slice(1);
     const type = key === 'color' ? 'color' : 'number';
     return (
-      <div key={key} style={{ marginBottom: '8px' }}>
+      <div key={key}>
         {label}: <input type={type} value={settings[key]} onChange={handleChange(key)}/>
       </div>
     )
@@ -148,23 +149,14 @@ function Settings({ canvas }) {
           {activeKeys.map(renderInput)}
           
           {/* Delete button */}
-          <button 
-            style={{ 
-              marginTop: '10px', 
-              backgroundColor: '#ff4444', 
-              color: 'white', 
-              border: 'none', 
-              padding: '5px 10px', 
-              cursor: 'pointer' 
-            }}
-            onClick={deleteSelectedObjects}
-          >
+          <button onClick={deleteSelectedObjects}>
             Delete Object
           </button>
         </div>
       ) : (
         <p>No object selected</p>
       )}
+      <LayerLists canvas={canvas}/>
     </div>
   )
 }

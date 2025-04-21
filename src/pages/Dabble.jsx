@@ -1,10 +1,12 @@
 import React, { useRef } from 'react'
 import Toolbar from '../components/Toolbar'
 import Settings from '../components/Settings'
-import CanvasSettings from '../components/CanvasSettings'
+// import CanvasSettings from '../components/CanvasSettings'
 import { useFabricCanvas } from '../hooks/useFabricCanvas'
 import { useCanvasResize } from '../hooks/useCanvasResize'
 import '../css/toolbar.css'
+import BottomToolbar from '../components/BottomToolbar'
+import TopToolbar from '../components/TopToolbar'
 
 function Dabble() {
   const canvasRef = useRef(null)
@@ -21,16 +23,21 @@ function Dabble() {
 
   return (
     <>
+    <TopToolbar canvas={canvas}  dimensions={dimensions} setDimensions={setDimensions} />
       <div className='canvas-wrap'>
+      
         <div className='canvas-main'>
           <Toolbar canvas={canvas} />
           <div className='canvas' ref={containerRef}>
             <canvas id='canvas' ref={canvasRef} />
           </div>
+          <div>
           <Settings canvas={canvas} />
+          
+          </div>
         </div>
       </div>
-      <CanvasSettings canvas={canvas} dimensions={dimensions} setDimensions={setDimensions} />
+      <BottomToolbar canvas={canvas} />
     </>
   )
 }
