@@ -2,7 +2,7 @@ import { Circle, Rect, Triangle } from 'fabric'
 import React from 'react'
 import ImageUploader from './ImageUploader'
  
-function Toolbar({canvas}) {
+function ToolbarLeft({canvas}) {
 
   const addRectangle = () => {
     if(canvas) {
@@ -33,7 +33,7 @@ function Toolbar({canvas}) {
   }
 
   return (
-    <div className='toolbar'>
+    <div className='toolbar-left'>
         <div>
         <button onClick={addRectangle}>&#9645;</button>
         <button onClick={addSquare}>&#8414;</button>
@@ -48,4 +48,4 @@ function Toolbar({canvas}) {
   )
 }
 
-export default Toolbar
+export default ToolbarLeft

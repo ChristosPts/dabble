@@ -4,7 +4,8 @@ import React, { useEffect, useState } from 'react'
 function LayerLists({canvas}) {
     const [layers, setLayers] = useState([])
     const [selectedLayer, setSelectedLayer] = useState(null)
-    const [lockedLayers, setLockedLayers] = useState({}) // Track locked state of layers
+    const [lockedLayers, setLockedLayers] = useState({}) 
+    const [hiddenLayers, setHiddenLayers] = useState({}) 
 
     const moveSelectedLayer = (direction) => {
         if (!selectedLayer || !canvas) return
@@ -73,7 +74,8 @@ function LayerLists({canvas}) {
                     id: obj.id,
                     zIndex: obj.zIndex,
                     type: obj.type,
-                    locked: !!lockedLayers[obj.id] // Include locked state in layer data
+                    locked: !!lockedLayers[obj.id], // Include locked state in layer data
+                    hidden: !!hiddenLayers[obj.id]  // Include hidden state in layer data
                 }))
             
             setLayers([...objects].reverse())
@@ -91,8 +93,8 @@ function LayerLists({canvas}) {
     }
 
     const selectLayerInCanvas = (layerId) => {
-        // Don't allow selecting locked layers
-        if (lockedLayers[layerId]) return
+        // Don't allow selecting locked or hidden layers
+        if (lockedLayers[layerId] || hiddenLayers[layerId]) return
         
         const object = canvas.getObjects().find((obj) => obj.id === layerId)
         if(object) {
@@ -162,6 +164,46 @@ function LayerLists({canvas}) {
         updateLayers()
     }
 
+    // Toggle visibility status for a layer
+    const toggleLayerVisibility = (layerId, event) => {
+        // Stop event propagation to prevent selecting the layer when clicking the visibility icon
+        event.stopPropagation()
+        
+        const object = canvas.getObjects().find((obj) => obj.id === layerId)
+        if (!object) return
+
+        // Update hidden status in our state
+        setHiddenLayers(prev => {
+            const newHiddenLayers = { ...prev }
+            
+            if (newHiddenLayers[layerId]) {
+                // Show layer
+                delete newHiddenLayers[layerId]
+                object.visible = true
+                
+                // If this was the selected layer before hiding, re-select it
+                if (selectedLayer === layerId && !lockedLayers[layerId]) {
+                    canvas.setActiveObject(object)
+                }
+            } else {
+                // Hide layer
+                newHiddenLayers[layerId] = true
+                object.visible = false
+                
+                // If this is the currently selected layer, deselect it
+                if (selectedLayer === layerId) {
+                    canvas.discardActiveObject()
+                    setSelectedLayer(null)
+                }
+            }
+            
+            return newHiddenLayers
+        })
+        
+        canvas.requestRenderAll()
+        updateLayers()
+    }
+
     useEffect(() => {
         if(canvas) {
             canvas.on("object:added", updateLayers)
@@ -196,6 +238,7 @@ function LayerLists({canvas}) {
 
     return (
         <div className="layer-list-container">  
+        <h1>Layers</h1>
             <div className="layer-controls" style={{display:'flex', marginBottom: '10px'}}>
                 <button 
                     onClick={() => moveSelectedLayer("up")}
@@ -217,30 +260,45 @@ function LayerLists({canvas}) {
                 <li 
                     key={layer.id} 
                     onClick={() => selectLayerInCanvas(layer.id)} 
-                    className={`layer-item ${layer.id === selectedLayer ? "selected-layer" : ""} ${layer.locked ? "locked-layer" : ""}`}
+                    className={`layer-item ${layer.id === selectedLayer ? "selected-layer" : ""} ${layer.locked ? "locked-layer" : ""} ${layer.hidden ? "hidden-layer" : ""}`}
                     style={{ 
                         display: 'flex', 
                         justifyContent: 'space-between',
                         padding: '8px',
-                        cursor: layer.locked ? 'not-allowed' : 'pointer',
+                        cursor: layer.locked || layer.hidden ? 'not-allowed' : 'pointer',
                         backgroundColor: layer.id === selectedLayer ? '#e0e0e0' : 'transparent',
-                        opacity: layer.locked ? 0.7 : 1
+                        opacity: layer.hidden ? 0.5 : (layer.locked ? 0.7 : 1)
                     }}
                 >
                     <span>{layer.type} ({layer.zIndex})</span>
-                    <button 
-                        onClick={(e) => toggleLayerLock(layer.id, e)}
-                        className="lock-button"
-                        style={{ 
-                            border: 'none', 
-                            background: 'none', 
-                            cursor: 'pointer',
-                            padding: '0 4px'
-                        }}
-                        title={layer.locked ? "Unlock layer" : "Lock layer"}
-                    >
-                        {layer.locked ? '🔒' : '🔓'}
-                    </button>
+                    <div className="layer-controls">
+                        <button 
+                            onClick={(e) => toggleLayerVisibility(layer.id, e)}
+                            className="visibility-button"
+                            style={{ 
+                                border: 'none', 
+                                background: 'none', 
+                                cursor: 'pointer',
+                                padding: '0 4px'
+                            }}
+                            title={layer.hidden ? "Show layer" : "Hide layer"}
+                        >
+                            {layer.hidden ? '👁️‍🗨️' : '👁️'}
+                        </button>
+                        <button 
+                            onClick={(e) => toggleLayerLock(layer.id, e)}
+                            className="lock-button"
+                            style={{ 
+                                border: 'none', 
+                                background: 'none', 
+                                cursor: 'pointer',
+                                padding: '0 4px'
+                            }}
+                            title={layer.locked ? "Unlock layer" : "Lock layer"}
+                        >
+                            {layer.locked ? '🔒' : '🔓'}
+                        </button>
+                    </div>
                 </li>
             ))}
             </ul>

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import ExportButtons from './ExportButtons';
+import Dropdown from './Dropdown';
 
-function TopToolbar({ canvas, dimensions, setDimensions }) {
+function ToolbarTop({ canvas, dimensions, setDimensions }) {
   const [width, setWidth] = useState(dimensions.width.toString())
   const [height, setHeight] = useState(dimensions.height.toString())
-  const [bgColor, setBgColor] = useState('#ffffff') // Default background color
-  const [isTransparent, setIsTransparent] = useState(false) // Track transparency state
+  const [bgColor, setBgColor] = useState('#ffffff') 
+  const [isTransparent, setIsTransparent] = useState(false) 
 
-  // Update local state when dimensions change
   useEffect(() => {
     if (canvas) {
       setWidth(dimensions.width.toString())
@@ -125,6 +125,7 @@ function TopToolbar({ canvas, dimensions, setDimensions }) {
 
   return (
     <div className="top-toolbar">
+      <Dropdown/>
       <div style={{display:'flex', flexDirection: 'column'}}>
         <div>
           <span>Width:</span>
@@ -169,7 +170,7 @@ function TopToolbar({ canvas, dimensions, setDimensions }) {
 
       <ExportButtons canvas={canvas} />
     </div>
-  );
+  )
 }
 
-export default TopToolbar;
+export default ToolbarTop

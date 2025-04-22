@@ -1,12 +1,12 @@
 import React, { useRef } from 'react'
-import Toolbar from '../components/Toolbar'
-import Settings from '../components/Settings'
-// import CanvasSettings from '../components/CanvasSettings'
+import ToolbarLeft from '../components/ToolbarLeft'
+import TooblarRight from '../components/TooblarRight'
 import { useFabricCanvas } from '../hooks/useFabricCanvas'
 import { useCanvasResize } from '../hooks/useCanvasResize'
 import '../css/toolbar.css'
-import BottomToolbar from '../components/BottomToolbar'
-import TopToolbar from '../components/TopToolbar'
+import ToolbarBottom from '../components/ToolbarBottom'
+import ToolbarTop from '../components/ToolbarTop'
+import LayerLists from '../components/LayerLists'
 
 function Dabble() {
   const canvasRef = useRef(null)
@@ -23,21 +23,21 @@ function Dabble() {
 
   return (
     <>
-    <TopToolbar canvas={canvas}  dimensions={dimensions} setDimensions={setDimensions} />
-      <div className='canvas-wrap'>
+    <ToolbarTop canvas={canvas}  dimensions={dimensions} setDimensions={setDimensions} />
+      <div className='canvas-container'>
       
         <div className='canvas-main'>
-          <Toolbar canvas={canvas} />
+          <ToolbarLeft canvas={canvas} />
           <div className='canvas' ref={containerRef}>
             <canvas id='canvas' ref={canvasRef} />
           </div>
-          <div>
-          <Settings canvas={canvas} />
-          
+          <div className='toolbar-right'>
+            <TooblarRight canvas={canvas} />
+            <LayerLists canvas={canvas}/>
           </div>
         </div>
       </div>
-      <BottomToolbar canvas={canvas} />
+      <ToolbarBottom canvas={canvas} />
     </>
   )
 }

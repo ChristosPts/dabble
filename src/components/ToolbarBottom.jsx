@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import SnappingToggle from './SnappingToggle';
 
-function BottomToolbar({ canvas }) {
+function ToolbarBottom({ canvas }) {
   const [zoom, setZoom] = useState(100);
   const [isHandToolActive, setIsHandToolActive] = useState(false);
 
@@ -266,7 +266,7 @@ function BottomToolbar({ canvas }) {
 
       <SnappingToggle canvas={canvas}/>
     </div>
-  );
+  )
 }
 
-export default BottomToolbar;
+export default ToolbarBottom;

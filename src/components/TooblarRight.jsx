@@ -9,9 +9,9 @@ const shapeConfigs = {
   circle: ['diameter', 'color'],
 }
 
-function Settings({ canvas }) {
+function TooblarRight({ canvas }) {
   const [selectedObj, setSelectedObj] = useState(null)
-  console.log(selectedObj)
+   
   const [settings, setSettings] = useState({
     width: '',
     height: '',
@@ -142,10 +142,10 @@ function Settings({ canvas }) {
   const activeKeys = selectedObj ? shapeConfigs[selectedObj.type] || [] : []
   
   return (
-    <div className="settings">
+    <div className="object-settings">
       {selectedObj ? (
         <div>
-          <h2>{selectedObj.type} Settings</h2>
+          <h1>Settings</h1>
           {activeKeys.map(renderInput)}
           
           {/* Delete button */}
@@ -154,11 +154,14 @@ function Settings({ canvas }) {
           </button>
         </div>
       ) : (
-        <p>No object selected</p>
+        <>
+          <h1>Settings</h1>
+          <p>No object selected</p>
+        </>
       )}
-      <LayerLists canvas={canvas}/>
+      
     </div>
   )
 }
 
-export default Settings
+export default TooblarRight
