@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import ToolbarLeft from '../components/ToolbarLeft'
 import TooblarRight from '../components/TooblarRight'
 import { useFabricCanvas } from '../hooks/useFabricCanvas'
@@ -11,12 +11,12 @@ import LayerLists from '../components/LayerLists'
 function Dabble() {
   const canvasRef = useRef(null)
   const containerRef = useRef(null)
-
+  const [activeBrush, setActiveBrush] = useState()
   const { canvas, dimensions, setDimensions } = useFabricCanvas(
     canvasRef,
     containerRef,
-    window.innerWidth > 768 ? 500 : window.innerWidth - 40,
-    window.innerWidth > 768 ? 500 : window.innerWidth - 40
+    window.innerWidth > 768 ? 1080 : window.innerWidth - 40,
+    window.innerHeight > 768 ? 720 : window.innerHeight - 40
   )
 
   useCanvasResize(canvas, containerRef, setDimensions)
@@ -27,12 +27,12 @@ function Dabble() {
       <div className='canvas-container'>
       
         <div className='canvas-main'>
-          <ToolbarLeft canvas={canvas} />
+          <ToolbarLeft canvas={canvas} activeBrush={activeBrush} setActiveBrush={setActiveBrush}/>
           <div className='canvas' ref={containerRef}>
             <canvas id='canvas' ref={canvasRef} />
           </div>
           <div className='toolbar-right'>
-            <TooblarRight canvas={canvas} />
+            <TooblarRight canvas={canvas} activeBrush={activeBrush}/>
             <LayerLists canvas={canvas}/>
           </div>
         </div>

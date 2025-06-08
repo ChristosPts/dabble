@@ -27,9 +27,7 @@ const useSnapping = (canvas) => {
     };
   }, [canvas]);
 
-  /**
-   * Toggle snapping functionality on/off
-   */
+  
   const toggleSnappingHandler = () => {
     const newState = toggleSnapping(null, canvas);
     setSnappingOn(newState);

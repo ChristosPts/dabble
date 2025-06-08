@@ -22,6 +22,50 @@ function ToolbarBottom({ canvas }) {
     };
   }, [isHandToolActive, canvas])
 
+  // Apply zoom to canvas wrapper or canvas based on zoom level
+  useEffect(() => {
+    if (!canvas) return
+    
+    const canvasWrapper = document.querySelector('.canvas')
+    if (!canvasWrapper) return
+    
+    // For zoom levels below 100%, scale the wrapper instead of the canvas
+    if (zoom < 100) {
+      // Reset canvas zoom to 100%
+      canvas.setViewportTransform([1, 0, 0, 1, 0, 0])
+      
+      // Scale the wrapper instead
+      const scale = zoom / 100
+      canvasWrapper.style.transform = `scale(${scale})`
+      
+      // Adjust wrapper size to maintain apparent size
+      // This creates space around the canvas when zoomed out
+      const scaleOffset = ((1 / scale) - 1) * 100
+      canvasWrapper.style.margin = `${scaleOffset / 2}%`
+    } else {
+      // For zoom >= 100%, use fabric.js zoom and reset wrapper styling
+      canvasWrapper.style.transform = 'none'
+      canvasWrapper.style.margin = '0'
+      
+      // Apply canvas zoom
+      const scaleFactor = zoom / 100
+      
+      // Get center point
+      const center = {
+        x: canvas.getWidth() / 2,
+        y: canvas.getHeight() / 2
+      }
+      
+      // Apply zoom centered on the canvas
+      canvas.zoomToPoint(center, scaleFactor)
+      
+      // After zooming, constrain the view
+      constrainViewport()
+    }
+    
+    canvas.renderAll()
+  }, [zoom, canvas])
+
   // Enable hand tool functionality
   const enableHandTool = () => {
     if (!canvas) return
@@ -49,6 +93,9 @@ function ToolbarBottom({ canvas }) {
     
     // Add new mouse down handler
     canvas.on('mouse:down', function(opt) {
+      // Only enable dragging if zoom is 100% or above
+      if (zoom < 100) return
+      
       const evt = opt.e;
       isDragging = true;
       canvas.defaultCursor = 'grabbing'
@@ -63,6 +110,9 @@ function ToolbarBottom({ canvas }) {
     
     // Add new mouse move handler
     canvas.on('mouse:move', function(opt) {
+      // Only allow dragging if zoom is 100% or above
+      if (zoom < 100) return
+      
       if (isDragging) {
         const evt = opt.e
         const vpt = canvas.viewportTransform
@@ -73,28 +123,9 @@ function ToolbarBottom({ canvas }) {
         vpt[4] += deltaX
         vpt[5] += deltaY
         
-        // Constrain movement to not go outside the canvas edges when zoomed in
-        if (zoom > 100) {
-          const zoomFactor = zoom / 100
-          const canvasWidth = canvas.width * zoomFactor
-          const canvasHeight = canvas.height * zoomFactor
-          const viewportWidth = canvas.width
-          const viewportHeight = canvas.height
-          
-          // Calculate max pan distances
-          const maxPanX = (canvasWidth - viewportWidth) / 2
-          const maxPanY = (canvasHeight - viewportHeight) / 2
-          
-          // Apply constraints
-          vpt[4] = Math.min(Math.max(vpt[4], -maxPanX), maxPanX)
-          vpt[5] = Math.min(Math.max(vpt[5], -maxPanY), maxPanY)
-        } else {
-          // If not zoomed in, reset position to center
-          vpt[4] = 0
-          vpt[5] = 0
-        }
+        // Constrain viewport to canvas bounds
+        constrainViewport()
         
-        canvas.setViewportTransform(vpt)
         canvas.requestRenderAll()
         
         lastPosX = evt.clientX
@@ -150,29 +181,36 @@ function ToolbarBottom({ canvas }) {
     }
   }
 
+  // Constrain viewport to not show outside canvas when zoomed in
+  const constrainViewport = () => {
+    if (!canvas || zoom < 100) return
+    
+    const vpt = canvas.viewportTransform
+    const zoomFactor = zoom / 100
+    
+    // Calculate dimensions
+    const canvasWidth = canvas.width * zoomFactor
+    const canvasHeight = canvas.height * zoomFactor
+    const viewportWidth = canvas.width
+    const viewportHeight = canvas.height
+    
+    // Calculate max pan distances
+    const maxPanX = Math.max(0, (canvasWidth - viewportWidth) / 2)
+    const maxPanY = Math.max(0, (canvasHeight - viewportHeight) / 2)
+    
+    // Apply constraints
+    vpt[4] = Math.min(Math.max(vpt[4], -maxPanX), maxPanX)
+    vpt[5] = Math.min(Math.max(vpt[5], -maxPanY), maxPanY)
+    
+    canvas.setViewportTransform(vpt)
+  }
+
   // Zoom in function
   const zoomIn = () => {
     if (!canvas) return
     
     const newZoom = Math.min(zoom + 10, 300)
     setZoom(newZoom)
-    
-    // Apply zoom to canvas
-    const scaleFactor = newZoom / 100
-    
-    // Get current center point
-    const center = {
-      x: canvas.getWidth() / 2,
-      y: canvas.getHeight() / 2
-    };
-    
-    // Apply zoom centered on the canvas
-    canvas.zoomToPoint(center, scaleFactor)
-    
-    // After zooming, constrain the view to the canvas bounds
-    constrainViewport()
-    
-    canvas.renderAll()
   }
 
   // Zoom out function
@@ -181,63 +219,13 @@ function ToolbarBottom({ canvas }) {
     
     const newZoom = Math.max(zoom - 10, 10)
     setZoom(newZoom)
-    
-    // Apply zoom to canvas
-    const scaleFactor = newZoom / 100
-    
-    // Get current center point
-    const center = {
-      x: canvas.getWidth() / 2,
-      y: canvas.getHeight() / 2
-    }
-    
-    // Apply zoom centered on the canvas
-    canvas.zoomToPoint(center, scaleFactor)
-    
-    // After zooming, constrain the view to the canvas bounds
-    constrainViewport()
-  
-    canvas.renderAll()
-  }
-
-  // Constrain viewport to not show outside canvas when zoomed in
-  const constrainViewport = () => {
-    if (!canvas) return
-    
-    const vpt = canvas.viewportTransform;
-    const zoomFactor = zoom / 100
-    
-    // Only apply constraints if zoomed in
-    if (zoomFactor > 1) {
-      const canvasWidth = canvas.width * zoomFactor
-      const canvasHeight = canvas.height * zoomFactor
-      const viewportWidth = canvas.width
-      const viewportHeight = canvas.height
-      
-      // Calculate max pan distances
-      const maxPanX = (canvasWidth - viewportWidth) / 2
-      const maxPanY = (canvasHeight - viewportHeight) / 2
-      
-      // Apply constraints
-      vpt[4] = Math.min(Math.max(vpt[4], -maxPanX), maxPanX)
-      vpt[5] = Math.min(Math.max(vpt[5], -maxPanY), maxPanY)
-      
-      canvas.setViewportTransform(vpt)
-    } else {
-      // If not zoomed in, reset position to center
-      vpt[4] = 0
-      vpt[5] = 0
-      canvas.setViewportTransform(vpt)
-    }
   }
 
   // Reset view (center canvas and set zoom to 100%)
   const resetView = () => {
     if (!canvas) return
     
-    setZoom(100);
-    canvas.setViewportTransform([1, 0, 0, 1, 0, 0])
-    canvas.renderAll()
+    setZoom(100)
   };
 
   // Toggle hand tool
@@ -264,7 +252,7 @@ function ToolbarBottom({ canvas }) {
         <span role="img" aria-label="Hand Tool">✋</span> 
       </button>
 
-      <SnappingToggle canvas={canvas}/>
+      <SnappingToggle canvas={canvas} />
     </div>
   )
 }

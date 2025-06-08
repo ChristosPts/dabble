@@ -1,167 +1,265 @@
 import React, { useEffect, useState } from 'react';
-import LayerLists from './LayerLists';
+import { shapeConfigs, brushConfigs, defaultShapeSettings } from '../utils/shapeConfig';
+import { updateObject, updateBrush, deleteSelectedObjects } from '../utils/canvasHelper';
 
-const shapeConfigs = {
-  rect: ['width', 'height', 'color'],
-  square: ['width', 'height', 'color'],
-  triangle: ['width', 'height', 'color'],
-  image: ['width', 'height'],
-  circle: ['diameter', 'color'],
-}
-
-function TooblarRight({ canvas }) {
-  const [selectedObj, setSelectedObj] = useState(null)
-   
-  const [settings, setSettings] = useState({
-    width: '',
-    height: '',
-    diameter: '',
-    color: '',
-  })
+function ToolbarRight({ canvas, activeBrush }) {
+  const [selectedObj, setSelectedObj] = useState(null);
+  const [isBrushActive, setIsBrushActive] = useState(false);
+  const [settings, setSettings] = useState({ ...defaultShapeSettings });
 
   useEffect(() => {
-    if (!canvas) return
-    
-    // Handle selection events from the canvas
+    if (!canvas) return;
+
     const handleSelection = (e) => {
-      const obj = e.selected ? e.selected[0] : e.target
-      setSelectedObj(obj)
-      populateSettings(obj)
-    }
+      const obj = e.selected ? e.selected[0] : e.target;
+      setSelectedObj(obj);
+      setIsBrushActive(false);
+      populateSettings(obj);
+    };
 
-    canvas.on('selection:created', handleSelection)
-    canvas.on('selection:updated', handleSelection)
-    canvas.on('selection:cleared', () => {
-      setSelectedObj(null)
-      clearSettings()
-    })
-    
-    // Set up keyboard event listener for delete key
     const handleKeyDown = (e) => {
-      if ((e.key === 'Delete' || e.key === 'Backspace') && canvas.getActiveObject()) {
-        deleteSelectedObjects()
+      if (e.key === 'Delete' && canvas.getActiveObject()) {
+        handleDelete();
       }
-    }
-    
-    document.addEventListener('keydown', handleKeyDown)
-    
+    };
+
+    canvas.on('selection:created', handleSelection);
+    canvas.on('selection:updated', handleSelection);
+    canvas.on('selection:cleared', () => {
+      setSelectedObj(null);
+      if (!activeBrush) {
+        clearSettings();
+      }
+    });
+
+    document.addEventListener('keydown', handleKeyDown);
+
     return () => {
-      canvas.off('selection:created', handleSelection)
-      canvas.off('selection:updated', handleSelection)
+      canvas.off('selection:created', handleSelection);
+      canvas.off('selection:updated', handleSelection);
       canvas.off('selection:cleared');
-      document.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [canvas])
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [canvas]);
 
-  // Delete the currently selected object(s)
-  const deleteSelectedObjects = () => {
-    if (!canvas) return
-    
-    const activeObject = canvas.getActiveObject()
-    
-    if (activeObject) {
-      // If it's a group of objects
-      if (activeObject.type === 'activeSelection') {
-        // Remove all objects in the selection
-        activeObject.forEachObject((obj) => {
-          canvas.remove(obj)
-        })
-      } else {
-        // Remove the single selected object
-        canvas.remove(activeObject)
+  useEffect(() => {
+    if (activeBrush) {
+      setIsBrushActive(true);
+      setSelectedObj(null);
+
+      if (canvas && canvas.freeDrawingBrush) {
+        setSettings(prev => ({
+          ...prev,
+          color: canvas.freeDrawingBrush.color || '#000000',
+          width: canvas.freeDrawingBrush.width || 5,
+          opacity: canvas.freeDrawingBrush.opacity !== undefined
+            ? Math.round(canvas.freeDrawingBrush.opacity * 100)
+            : 100,
+        }));
       }
-      
-      // Clear selection and render canvas
-      canvas.discardActiveObject()
-      canvas.requestRenderAll()
-      
-      // Clear local state
-      setSelectedObj(null)
-      clearSettings()
+    } else {
+      setIsBrushActive(false);
     }
-  }
+  }, [activeBrush, canvas]);
 
-  // Populate settings input values based on selected object's current properties
   const populateSettings = (obj) => {
     if (!obj) return;
-    const { type, scaleX = 1, scaleY = 1, fill = '', width, height, radius } = obj
-    const newSettings = {
-      width: width ? Math.round(width * scaleX) : '',
-      height: height ? Math.round(height * scaleY) : '',
-      diameter: radius ? Math.round(radius * scaleX * 2) : '',
-      color: fill || '',
-    }
-    setSettings(newSettings)
-  }
+
+    const scaleX = obj.scaleX || 1;
+    const scaleY = obj.scaleY || 1;
+    const shadow = obj.shadow || {};
+
+    setSettings({
+      ...defaultShapeSettings,
+      width: obj.width ? Math.round(obj.width * scaleX) : '',
+      height: obj.height ? Math.round(obj.height * scaleY) : '',
+      diameter: obj.radius ? Math.round(obj.radius * scaleX * 2) : '',
+      fill: obj.fill || '',
+      stroke: obj.stroke || '',
+      strokeWidth: obj.strokeWidth || '',
+      strokeDashArray: obj.strokeDashArray?.length ? 'dashed' : 'solid',
+      fontSize: obj.fontSize || '',
+      text: obj.text || '',
+      fontFamily: obj.fontFamily || 'Arial',
+      opacity: obj.opacity !== undefined ? Math.round(obj.opacity * 100) : 100,
+      shadowColor: shadow.color || '#000000',
+      shadowOffsetX: shadow.offsetX || 0,
+      shadowOffsetY: shadow.offsetY || 0,
+      shadowBlur: shadow.blur || 0
+    });
+  };
 
   const clearSettings = () => {
-    setSettings({ width: '', height: '', diameter: '', color: '' })
-  }
+    setSettings({ ...defaultShapeSettings });
+  };
 
-  const updateObject = (key, value) => {
-    if (!selectedObj) return;
- 
-    const numValue = parseFloat(value);
-    switch (key) {
-      case 'width':
-        selectedObj.set('width', numValue / selectedObj.scaleX);
-        break;
-      case 'height':
-        selectedObj.set('height', numValue / selectedObj.scaleY);
-        break;
-      case 'diameter':
-        selectedObj.set('radius', numValue / 2 / selectedObj.scaleX);
-        break;
-      case 'color':
-        selectedObj.set('fill', value);
-        break;
-      default:
-        break;
-    }
-    selectedObj.setCoords()
-    canvas.requestRenderAll()
-  }
+  const handleDelete = () => {
+    deleteSelectedObjects(canvas);
+    setSelectedObj(null);
+    clearSettings();
+  };
 
   const handleChange = (key) => (e) => {
-    const value = e.target.value
-    setSettings((prev) => ({ ...prev, [key]: value }))
-    updateObject(key, value)
-  }
+    const value = e.target.type === 'number' ? parseFloat(e.target.value) || 0 : e.target.value;
+
+    let processedValue = value;
+    if (key === 'width' && isBrushActive) {
+      processedValue = Math.max(1, Math.min(100, parseInt(value) || 1));
+    }
+
+    setSettings((prev) => ({ ...prev, [key]: processedValue }));
+
+    if (isBrushActive && canvas.freeDrawingBrush) {
+      updateBrush(canvas.freeDrawingBrush, key, processedValue, canvas);
+    } else if (selectedObj) {
+      if (['shadowColor', 'shadowOffsetX', 'shadowOffsetY', 'shadowBlur'].includes(key)) {
+        const currentShadow = selectedObj.shadow || {};
+        const newShadow = {
+          color: key === 'shadowColor' ? value : currentShadow.color || '#000000',
+          offsetX: key === 'shadowOffsetX' ? value : currentShadow.offsetX || 0,
+          offsetY: key === 'shadowOffsetY' ? value : currentShadow.offsetY || 0,
+          blur: key === 'shadowBlur' ? value : currentShadow.blur || 0
+        };
+        selectedObj.set('shadow', newShadow);
+        canvas.requestRenderAll();
+      } else {
+        updateObject(selectedObj, key, processedValue, canvas);
+      }
+    }
+  };
 
   const renderInput = (key) => {
-    const label = key.charAt(0).toUpperCase() + key.slice(1);
-    const type = key === 'color' ? 'color' : 'number';
-    return (
-      <div key={key}>
-        {label}: <input type={type} value={settings[key]} onChange={handleChange(key)}/>
-      </div>
-    )
-  }
+    const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
 
-  // Determine which inputs to render based on selected object type
-  const activeKeys = selectedObj ? shapeConfigs[selectedObj.type] || [] : []
-  
+    const inputConfigs = {
+      strokeDashArray: {
+        type: 'select',
+        options: [
+          { value: 'solid', label: 'Solid' },
+          { value: 'dashed', label: 'Dashed' }
+        ]
+      },
+      fontFamily: {
+        type: 'select',
+        label: 'Font Family',
+        options: [
+          { value: 'Arial', label: 'Arial' },
+          { value: 'Helvetica', label: 'Helvetica' },
+          { value: 'Times New Roman', label: 'Times New Roman' },
+          { value: 'Courier New', label: 'Courier New' },
+          { value: 'Georgia', label: 'Georgia' },
+          { value: 'Comic Sans MS', label: 'Comic Sans' },
+          { value: 'Verdana', label: 'Verdana' }
+        ]
+      },
+      patternType: {
+        type: 'select',
+        label: 'Pattern Type',
+        options: [
+          { value: 'simple', label: 'Simple' },
+          { value: 'dots', label: 'Dots' },
+          { value: 'zigzag', label: 'Zigzag' }
+        ]
+      },
+      opacity: {
+        type: 'number',
+        label: 'Opacity (%)',
+        min: 0,
+        max: 100
+      },
+      width: {
+        type: 'number',
+        label: isBrushActive ? 'Width (px)' : 'Width',
+        min: isBrushActive ? 1 : undefined,
+        max: isBrushActive ? 100 : undefined
+      },
+      sprayDensity: {
+        type: 'number',
+        min: 1,
+        max: 100
+      },
+      sprayWidth: {
+        type: 'number',
+        label: 'Spray Width (px)',
+        min: 1,
+        max: 100
+      },
+      color: { type: 'color' },
+      fill: { type: 'color' },
+      stroke: { type: 'color' },
+      text: { type: 'text' },
+      shadowColor: { type: 'color', label: 'Shadow Color' },
+      shadowOffsetX: { type: 'number', label: 'Shadow X Offset' },
+      shadowOffsetY: { type: 'number', label: 'Shadow Y Offset' },
+      shadowBlur: { type: 'number', label: 'Shadow Blur' }
+    };
+
+    const config = inputConfigs[key] || { type: 'number' };
+    const inputLabel = config.label || label;
+
+    switch (config.type) {
+      case 'select':
+        return (
+          <div key={key}>
+            {inputLabel}:
+            <select value={settings[key]} onChange={handleChange(key)}>
+              {config.options.map(option => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </div>
+        );
+
+      case 'number':
+      case 'color':
+      case 'text':
+        return (
+          <div key={key}>
+            {inputLabel}:
+            <input
+              type={config.type}
+              value={settings[key] || ''}
+              onChange={handleChange(key)}
+              min={config.min}
+              max={config.max}
+            />
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  const activeConfig = isBrushActive
+    ? { keys: brushConfigs[activeBrush] || [], title: `${activeBrush.charAt(0).toUpperCase() + activeBrush.slice(1)} Brush Settings` }
+    : selectedObj
+      ? {
+          keys: [
+            ...(shapeConfigs[selectedObj.type] || []),
+            'shadowColor',
+            'shadowOffsetX',
+            'shadowOffsetY',
+            'shadowBlur'
+          ],
+          title: 'Object Settings'
+        }
+      : { keys: [], title: 'Settings' };
+
   return (
     <div className="object-settings">
-      {selectedObj ? (
+      <h1>{activeConfig.title}</h1>
+
+      {(selectedObj || isBrushActive) ? (
         <div>
-          <h1>Settings</h1>
-          {activeKeys.map(renderInput)}
-          
-          {/* Delete button */}
-          <button onClick={deleteSelectedObjects}>
-            Delete Object
-          </button>
+          {activeConfig.keys.map(renderInput)}
+          {selectedObj && <button onClick={handleDelete}>Delete Object</button>}
         </div>
       ) : (
-        <>
-          <h1>Settings</h1>
-          <p>No object selected</p>
-        </>
+        <p>No object selected</p>
       )}
-      
     </div>
-  )
+  );
 }
 
-export default TooblarRight
+export default ToolbarRight;

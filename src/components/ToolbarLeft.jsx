@@ -1,51 +1,51 @@
-import { Circle, Rect, Triangle } from 'fabric'
-import React from 'react'
-import ImageUploader from './ImageUploader'
- 
-function ToolbarLeft({canvas}) {
+import React from 'react';
+import ImageUploader from './ImageUploader';
+import useShapeTools from '../hooks/useShapeTools';
+import useBrushTools from '../hooks/useBrushTools';
 
-  const addRectangle = () => {
-    if(canvas) {
-        const rectangle = new Rect({ top: 100, left: 50, width: 100, height:50, fill: '#23eb23' })
-        canvas.add(rectangle)
-    }
-  }
-
-  const addSquare = () => {
-    if(canvas) {
-        const square = new Rect({ top: 100, left: 50, width: 50, height:50, fill: '#ff0000' })
-        canvas.add(square)
-    }
-  }
-
-  const addTriangle = () => {
-    if(canvas) {
-        const triangle = new Triangle({ top: 100, left: 50, width: 50, height:50, fill: '#0008ff' })
-        canvas.add(triangle)
-    }
-  }
-
-  const addCircle = () => {
-    if(canvas) {
-        const circle = new Circle({ top: 100, left: 50, radius: 30, fill: '#fbff00' })
-        canvas.add(circle)
-    }
-  }
+function ToolbarLeft({ canvas, setActiveBrush, activeBrush }) {
+  const { isDrawing, setIsDrawing, toggleDrawing } = useBrushTools(canvas, activeBrush, setActiveBrush);
+  
+  const { 
+    addRectangle, 
+    addSquare, 
+    addTriangle, 
+    addCircle, 
+    addLine, 
+    addText 
+  } = useShapeTools(canvas, isDrawing, setIsDrawing, setActiveBrush);
 
   return (
-    <div className='toolbar-left'>
+    <div className="toolbar-left">
+      <div className="shape-tools">
+        <h3>Shapes</h3>
         <div>
-        <button onClick={addRectangle}>&#9645;</button>
-        <button onClick={addSquare}>&#8414;</button>
-        <ImageUploader canvas = {canvas}/>
+          <button onClick={addRectangle}>&#9645;</button>
+          <button onClick={addSquare}>&#8414;</button>
+          <button onClick={addText}>T</button>
+          <button onClick={addTriangle}>&#8420;</button>
+          <button onClick={addCircle}>&#9711;</button>
+          <button onClick={addLine}>-</button>
+          <ImageUploader canvas={canvas} />
         </div>
+      </div>
+      
+      <div className="drawing-tools">
+        <h3>Drawing Tools</h3>
         <div>
-        <button onClick={addTriangle}>&#8420;</button>
-        <button onClick={addCircle}>&#9711;</button>
- 
+          <button onClick={() => toggleDrawing('pencil')}>
+            {activeBrush === 'pencil' ? '🛑 Stop Pencil' : '✏️ Pencil'}
+          </button>
+          <button onClick={() => toggleDrawing('pattern')}>
+            {activeBrush === 'pattern' ? '🛑 Stop Pattern' : '🖌️ Pattern'}
+          </button>
+          <button onClick={() => toggleDrawing('spray')}>
+            {activeBrush === 'spray' ? '🛑 Stop Spray' : '💦 Spray'}
+          </button>
         </div>
+      </div>
     </div>
-  )
+  );
 }
 
-export default ToolbarLeft
+export default ToolbarLeft;

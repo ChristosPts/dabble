@@ -53,3 +53,10 @@ video {
   max-width: 100%;
   height: auto;
 }
+
+button {
+  border: 1px solid black ;
+  max-width: 70px;
+  cursor: pointer;
+  
+}
