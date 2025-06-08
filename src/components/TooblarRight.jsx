@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { shapeConfigs, brushConfigs, defaultShapeSettings } from '../utils/shapeConfig';
 import { updateObject, updateBrush, deleteSelectedObjects } from '../utils/canvasHelper';
+import { isImage } from '../utils/filterUtils';
+import ImageFilters from './ImageFilters';
 
 function ToolbarRight({ canvas, activeBrush }) {
   const [selectedObj, setSelectedObj] = useState(null);
@@ -254,6 +256,11 @@ function ToolbarRight({ canvas, activeBrush }) {
         <div>
           {activeConfig.keys.map(renderInput)}
           {selectedObj && <button onClick={handleDelete}>Delete Object</button>}
+          
+          {/* Add ImageFilters component when an image is selected */}
+          {selectedObj && isImage(selectedObj) && (
+            <ImageFilters canvas={canvas} selectedObject={selectedObj} />
+          )}
         </div>
       ) : (
         <p>No object selected</p>

@@ -1,5 +1,6 @@
 import { Canvas } from 'fabric'
 import React, { useEffect, useState } from 'react'
+import "../css/layers-list.css"
 
 function LayerLists({canvas}) {
     const [layers, setLayers] = useState([])
@@ -236,74 +237,62 @@ function LayerLists({canvas}) {
         return layers[layers.length - 1]?.id === layerId;
     }
 
+     
+
     return (
         <div className="layer-list-container">  
-        <h1>Layers</h1>
-            <div className="layer-controls" style={{display:'flex', marginBottom: '10px'}}>
+            <h1>Layers</h1>
+            <div className="layer-controls">
                 <button 
-                    onClick={() => moveSelectedLayer("up")}
-                    disabled={!selectedLayer || isTopLayer(selectedLayer) || lockedLayers[selectedLayer]}
+                    onClick={() => moveSelectedLayer("up")} 
                     className="layer-button"
+                    disabled={!selectedLayer || isTopLayer(selectedLayer) || lockedLayers[selectedLayer]}
                 >
                     Move Up
                 </button>
                 <button 
                     onClick={() => moveSelectedLayer("down")} 
-                    disabled={!selectedLayer || isBottomLayer(selectedLayer) || lockedLayers[selectedLayer]}
                     className="layer-button"
+                    disabled={!selectedLayer || isBottomLayer(selectedLayer) || lockedLayers[selectedLayer]}
                 >
                     Move Down
                 </button>
             </div>
             <ul className="layers-list">
-            {layers.map((layer) => (
-                <li 
-                    key={layer.id} 
-                    onClick={() => selectLayerInCanvas(layer.id)} 
-                    className={`layer-item ${layer.id === selectedLayer ? "selected-layer" : ""} ${layer.locked ? "locked-layer" : ""} ${layer.hidden ? "hidden-layer" : ""}`}
-                    style={{ 
-                        display: 'flex', 
-                        justifyContent: 'space-between',
-                        padding: '8px',
-                        cursor: layer.locked || layer.hidden ? 'not-allowed' : 'pointer',
-                        backgroundColor: layer.id === selectedLayer ? '#e0e0e0' : 'transparent',
-                        opacity: layer.hidden ? 0.5 : (layer.locked ? 0.7 : 1)
-                    }}
-                >
-                    <span>{layer.type} ({layer.zIndex})</span>
-                    <div className="layer-controls">
-                        <button 
-                            onClick={(e) => toggleLayerVisibility(layer.id, e)}
-                            className="visibility-button"
-                            style={{ 
-                                border: 'none', 
-                                background: 'none', 
-                                cursor: 'pointer',
-                                padding: '0 4px'
-                            }}
-                            title={layer.hidden ? "Show layer" : "Hide layer"}
-                        >
-                            {layer.hidden ? '👁️‍🗨️' : '👁️'}
-                        </button>
-                        <button 
-                            onClick={(e) => toggleLayerLock(layer.id, e)}
-                            className="lock-button"
-                            style={{ 
-                                border: 'none', 
-                                background: 'none', 
-                                cursor: 'pointer',
-                                padding: '0 4px'
-                            }}
-                            title={layer.locked ? "Unlock layer" : "Lock layer"}
-                        >
-                            {layer.locked ? '🔒' : '🔓'}
-                        </button>
-                    </div>
-                </li>
-            ))}
+                {layers.map((layer) => (
+                    <li 
+                        key={layer.id} 
+                        onClick={() => selectLayerInCanvas(layer.id)} 
+                        className={`layer-item ${layer.id === selectedLayer ? "selected-layer" : ""} 
+                                                ${layer.locked ? "locked-layer" : ""} 
+                                                ${layer.hidden ? "hidden-layer" : ""}`}
+                        style={{
+                            cursor: layer.locked || layer.hidden ? 'not-allowed' : 'pointer'
+                        }}
+                    >
+                        <span>{layer.type} ({layer.zIndex})</span>
+                        <div className="layer-controls">
+                            <button 
+                                onClick={(e) => toggleLayerVisibility(layer.id, e)}
+                                className="visibility-button"
+                                title={layer.hidden ? "Show layer" : "Hide layer"}
+                            >
+                                {layer.hidden ? '👁️‍🗨️' : '👁️'}
+                            </button>
+                            <button 
+                                onClick={(e) => toggleLayerLock(layer.id, e)}
+                                className="lock-button"
+                                title={layer.locked ? "Unlock layer" : "Lock layer"}
+                            >
+                                {layer.locked ? '🔒' : '🔓'}
+                            </button>
+                        </div>
+                    </li>
+                ))}
             </ul>
         </div>
-    )
+    );
+    
 }
 
 export default LayerLists

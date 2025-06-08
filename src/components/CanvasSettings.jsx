@@ -167,8 +167,20 @@ const CanvasSettings = ({ canvas, dimensions, setDimensions }) => {
                 Transparent Background
               </label>
           </div>
+
+          <div className="dropdown-item">
+  <button onClick={() => {
+    if (canvas) {
+      canvas.clear() // Removes all objects and background
+      canvas.backgroundColor = isTransparent ? null : bgColor // Restore background color
+      canvas.renderAll()
+    }
+  }}>
+    Clear Canvas
+  </button>
+</div>
+
         </>
-   
     
   )
 }

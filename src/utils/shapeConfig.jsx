@@ -5,7 +5,7 @@ export const shapeConfigs = {
   triangle: ['width', 'height', 'fill', 'stroke', 'strokeWidth', 'strokeDashArray', 'opacity'],
   circle: ['diameter', 'fill', 'stroke', 'strokeWidth', 'strokeDashArray', 'opacity'],
   image: ['width', 'height', 'opacity'],
-  line: ['stroke', 'strokeWidth', 'strokeDashArray', 'opacity'],
+  line: ['width','stroke', 'strokeWidth', 'strokeDashArray', 'opacity'],
   'i-text': ['text', 'fontSize', 'fill', 'stroke', 'strokeWidth', 'fontFamily', 'opacity']
 };
 
