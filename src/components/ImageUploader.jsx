@@ -1,4 +1,5 @@
 import {  FabricImage } from 'fabric'
+import { ImageUp } from 'lucide-react'
 import React from 'react'
 
 function ImageUploader({ canvas }) {
@@ -33,7 +34,7 @@ function ImageUploader({ canvas }) {
         hidden
         onChange={handleAddImage}
       />
-      <label htmlFor="upload" className="btn">&#x21eb;</label>
+      <label htmlFor="upload" className="btn"><ImageUp size={50}/></label>
     </div>
   )
 }

@@ -7,6 +7,8 @@ function LayerLists({canvas}) {
     const [selectedLayer, setSelectedLayer] = useState(null)
     const [lockedLayers, setLockedLayers] = useState({}) 
     const [hiddenLayers, setHiddenLayers] = useState({}) 
+    // Add a force update counter to trigger re-renders when needed
+    const [updateCounter, setUpdateCounter] = useState(0)
 
     const moveSelectedLayer = (direction) => {
         if (!selectedLayer || !canvas) return
@@ -162,7 +164,12 @@ function LayerLists({canvas}) {
         })
         
         canvas.requestRenderAll()
+        
+        // Force an update of the layers array with current locked/hidden states
         updateLayers()
+        
+        // Force re-render to update the UI immediately
+        setUpdateCounter(prev => prev + 1)
     }
 
     // Toggle visibility status for a layer
@@ -202,7 +209,12 @@ function LayerLists({canvas}) {
         })
         
         canvas.requestRenderAll()
+        
+        // Force an update of the layers array with current locked/hidden states
         updateLayers()
+        
+        // Force re-render to update the UI immediately
+        setUpdateCounter(prev => prev + 1)
     }
 
     useEffect(() => {
@@ -225,7 +237,12 @@ function LayerLists({canvas}) {
                 canvas.off("selection:cleared", () => setSelectedLayer(null))
             }
         }
-    },[canvas])
+    }, [canvas])
+    
+    // Additional effect to ensure the layers state is up-to-date with lock and visibility changes
+    useEffect(() => {
+        updateLayers()
+    }, [lockedLayers, hiddenLayers, updateCounter])
 
     // Function to determine if a layer is at the top (visually)
     const isTopLayer = (layerId) => {
@@ -236,8 +253,6 @@ function LayerLists({canvas}) {
     const isBottomLayer = (layerId) => {
         return layers[layers.length - 1]?.id === layerId;
     }
-
-     
 
     return (
         <div className="layer-list-container">  
@@ -261,7 +276,7 @@ function LayerLists({canvas}) {
             <ul className="layers-list">
                 {layers.map((layer) => (
                     <li 
-                        key={layer.id} 
+                        key={`${layer.id}-${updateCounter}`} 
                         onClick={() => selectLayerInCanvas(layer.id)} 
                         className={`layer-item ${layer.id === selectedLayer ? "selected-layer" : ""} 
                                                 ${layer.locked ? "locked-layer" : ""} 
@@ -277,14 +292,14 @@ function LayerLists({canvas}) {
                                 className="visibility-button"
                                 title={layer.hidden ? "Show layer" : "Hide layer"}
                             >
-                                {layer.hidden ? '👁️‍🗨️' : '👁️'}
+                                {/* Icon is now controlled by CSS */}
                             </button>
                             <button 
                                 onClick={(e) => toggleLayerLock(layer.id, e)}
                                 className="lock-button"
                                 title={layer.locked ? "Unlock layer" : "Lock layer"}
                             >
-                                {layer.locked ? '🔒' : '🔓'}
+                                {/* Icon is now controlled by CSS */}
                             </button>
                         </div>
                     </li>
@@ -292,7 +307,6 @@ function LayerLists({canvas}) {
             </ul>
         </div>
     );
-    
 }
 
 export default LayerLists

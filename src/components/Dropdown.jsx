@@ -1,8 +1,6 @@
-// Dropdown.jsx
 import React, { useState, useRef, useEffect } from 'react'
 
-
-const Dropdown = ({ label, children }) => {
+const Dropdown = ({ label, children, icon }) => {
   const [open, setOpen] = useState(false)
   const dropdownRef = useRef()
 
@@ -18,9 +16,13 @@ const Dropdown = ({ label, children }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
+  // Apply open class to container for styling
+  const containerClass = `dropdown-container ${open ? 'open' : ''}`
+
   return (
-    <div className="dropdown-container" ref={dropdownRef}>
+    <div className={containerClass} ref={dropdownRef}>
       <button className="dropdown-buttons" onClick={handleToggle}>
+        {icon && <span className="dropdown-icon">{icon}</span>}
         {label}
       </button>
 

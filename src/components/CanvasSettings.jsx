@@ -121,64 +121,81 @@ const CanvasSettings = ({ canvas, dimensions, setDimensions }) => {
 
   return (
         <>
-          <div className="dropdown-item">
-              <label htmlFor="canvas-width">Width:</label>
-              <input
-                id="canvas-width"
-                type="text"
-                value={width}
-                onChange={handleWidthChange}
-                onBlur={applyWidthChange}
-                onKeyDown={handleKeyDown(applyWidthChange)}
-              />
-          </div>
-          
-          <div className="dropdown-item">
-              <label htmlFor="canvas-height">Height:</label>
-              <input
-                id="canvas-height"
-                type="text"
-                value={height}
-                onChange={handleHeightChange}
-                onBlur={applyHeightChange}
-                onKeyDown={handleKeyDown(applyHeightChange)}
-              />
-          </div>
-          
-          <div className="dropdown-item">
-              <label htmlFor="bg-color">Background:</label>
-              <input 
-                id="bg-color"
-                type="color" 
-                value={bgColor}
-                onChange={handleBackgroundChange}
-                disabled={isTransparent}
-                title="Background Color"
-              />
-          </div>
-          
-          <div className="dropdown-item">
-              <label>
-                <input 
-                  type="checkbox"
-                  checked={isTransparent}
-                  onChange={toggleTransparent}
-                />
-                Transparent Background
-              </label>
-          </div>
+ <div className="dropdown-section-title">Canvas Dimensions</div>
+      <div className="dropdown-item">
+        <label htmlFor="canvas-width">Width:</label>
+        <input
+          id="canvas-width"
+          type="text"
+          value={width}
+          onChange={handleWidthChange}
+          onBlur={applyWidthChange}
+          onKeyDown={handleKeyDown(applyWidthChange)}
+          className="canvas-input"
+        />
+      </div>
+      
+      <div className="dropdown-item">
+        <label htmlFor="canvas-height">Height:</label>
+        <input
+          id="canvas-height"
+          type="text"
+          value={height}
+          onChange={handleHeightChange}
+          onBlur={applyHeightChange}
+          onKeyDown={handleKeyDown(applyHeightChange)}
+          className="canvas-input"
+        />
+      </div>
+      
+      <div className="dropdown-divider"></div>
+      
+      <div className="dropdown-section-title">Appearance</div>
+      <div className="dropdown-item">
+        <label htmlFor="bg-color">Background:</label>
+        <div className="color-picker-wrapper">
+          <input 
+            id="bg-color"
+            type="color" 
+            value={bgColor}
+            onChange={handleBackgroundChange}
+            disabled={isTransparent}
+            title="Background Color"
+            className="color-picker"
+          />
+          {isTransparent && <div className="disabled-overlay"></div>}
+        </div>
+      </div>
+      
+      <div className="dropdown-item checkbox-item">
+        <label className="checkbox-label">
+          <input 
+            type="checkbox"
+            checked={isTransparent}
+            onChange={toggleTransparent}
+            className="checkbox-input"
+          />
+          <span className="checkbox-text">Transparent Background</span>
+        </label>
+      </div>
 
-          <div className="dropdown-item">
-  <button onClick={() => {
-    if (canvas) {
-      canvas.clear() // Removes all objects and background
-      canvas.backgroundColor = isTransparent ? null : bgColor // Restore background color
-      canvas.renderAll()
-    }
-  }}>
-    Clear Canvas
-  </button>
-</div>
+      <div className="dropdown-divider"></div>
+      
+      <div className="dropdown-item button-container">
+        <button 
+          onClick={() => {
+            if (canvas) {
+              canvas.clear() // Removes all objects and background
+              canvas.backgroundColor = isTransparent ? null : bgColor // Restore background color
+              canvas.renderAll()
+            }
+          }}
+          className="clear-button"
+        >
+          <span className="button-icon">🗑️</span>
+          Clear Canvas
+        </button>
+      </div>
 
         </>
     

@@ -2,46 +2,80 @@ import React from 'react';
 import ImageUploader from './ImageUploader';
 import useShapeTools from '../hooks/useShapeTools';
 import useBrushTools from '../hooks/useBrushTools';
+import "../css/toolbar-left.css"
+import {
+  Square,
+  RectangleHorizontal,
+  Triangle,
+  Circle,
+  LineChart,
+  Type,
+  Pencil,
+  Paintbrush,
+  SprayCan,
+  ImagePlus,
+  PenLine
+} from 'lucide-react';
 
 function ToolbarLeft({ canvas, setActiveBrush, activeBrush }) {
   const { isDrawing, setIsDrawing, toggleDrawing } = useBrushTools(canvas, activeBrush, setActiveBrush);
-  
-  const { 
-    addRectangle, 
-    addSquare, 
-    addTriangle, 
-    addCircle, 
-    addLine, 
-    addText 
+
+  const {
+    addRectangle,
+    addSquare,
+    addTriangle,
+    addCircle,
+    addLine,
+    addText
   } = useShapeTools(canvas, isDrawing, setIsDrawing, setActiveBrush);
 
   return (
-    <div className="toolbar-left">
-      <div className="shape-tools">
-        <h3>Shapes</h3>
-        <div>
-          <button onClick={addRectangle}>&#9645;</button>
-          <button onClick={addSquare}>&#8414;</button>
-          <button onClick={addText}>T</button>
-          <button onClick={addTriangle}>&#8420;</button>
-          <button onClick={addCircle}>&#9711;</button>
-          <button onClick={addLine}>-</button>
-          <ImageUploader canvas={canvas} />
+    <div className="toolbar-left-panel">
+      <div className="tool-section">
+        <label className="tool-label">Shapes</label>
+        <div className="tool-group">
+          <button className="btn" onClick={addRectangle} title="Rectangle"><RectangleHorizontal size={36} /></button>
+          <button className="btn" onClick={addSquare} title="Square"><Square size={36} /></button>
+          <button className="btn" onClick={addTriangle} title="Triangle"><Triangle size={36} /></button>
+          <button className="btn" onClick={addCircle} title="Circle"><Circle size={36} /></button>
+          <button className="btn" onClick={addLine} title="Line"><PenLine size={36} /></button>
+          <button className="btn" onClick={addText} title="Text Tool"><Type size={36} /></button>
+
         </div>
       </div>
-      
-      <div className="drawing-tools">
-        <h3>Drawing Tools</h3>
-        <div>
-          <button onClick={() => toggleDrawing('pencil')}>
-            {activeBrush === 'pencil' ? '🛑 Stop Pencil' : '✏️ Pencil'}
+
+      <div className="tool-section">
+        <label className="tool-label">Drawing</label>
+        <div className="tool-group">
+          <button
+            className={`btn ${activeBrush === 'pencil' ? 'active' : ''}`}
+            onClick={() => toggleDrawing('pencil')}
+            title="Pencil"
+          >
+            <Pencil size={36} />
           </button>
-          <button onClick={() => toggleDrawing('pattern')}>
-            {activeBrush === 'pattern' ? '🛑 Stop Pattern' : '🖌️ Pattern'}
+          <button
+            className={`btn icon ${activeBrush === 'pattern' ? 'active' : ''}`}
+            onClick={() => toggleDrawing('pattern')}
+            title="Pattern Brush"
+          >
+            <Paintbrush size={36} />
           </button>
-          <button onClick={() => toggleDrawing('spray')}>
-            {activeBrush === 'spray' ? '🛑 Stop Spray' : '💦 Spray'}
+          <button
+            className={`btn ${activeBrush === 'spray' ? 'active' : ''}`}
+            onClick={() => toggleDrawing('spray')}
+            title="Spray Brush"
+          >
+            <SprayCan size={36} />
           </button>
+
+        </div>
+      </div>
+
+      <div className="tool-section">
+        <label className="tool-label">Image</label>
+        <div className="tool-group">
+          <ImageUploader canvas={canvas} />
         </div>
       </div>
     </div>

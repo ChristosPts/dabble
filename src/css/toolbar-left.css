@@ -1,0 +1,77 @@
+.toolbar-left-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 12px;
+    background-color: var(--color-surface);
+    border-right: 1px solid var(--color-border);
+    min-width: 200px;
+  }
+  
+  .tool-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .tool-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text);
+    padding-left: 4px;
+  }
+  
+  .tool-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0x;
+  }
+  
+  /* Reuse your .btn styles */
+  .toolbar-left-panel .btn {
+    background-color: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--color-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    width: 40px;
+    height: 40px;
+  }
+  
+  .toolbar-left-panel .btn.active {
+    background-color: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+  }
+  
+  .toolbar-left-panel .btn:hover {
+    background-color: var(--color-surface);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  
+  
+  @media (max-width: 768px) {
+    .toolbar-left-panel {
+      flex-direction: row;
+      flex-wrap: wrap;
+      padding: 8px;
+      gap: 2px;
+    }
+  
+    .tool-section {
+      flex: 1 1 100%;
+    }
+  
+    .tool-group {
+      
+    }
+  }
+  

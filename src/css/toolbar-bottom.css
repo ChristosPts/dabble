@@ -1,0 +1,137 @@
+/* Bottom Toolbar Styles */
+.bottom-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background-color: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+    position: relative;
+    z-index: 100;
+    transition: all 0.3s ease;
+  }
+  
+  .canvas-zoom {
+    display: flex;
+    align-items: center;
+  }
+  
+  .canvas-zoom span {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text);
+    min-width: 80px;
+  }
+
+  .bottom-toolbar .tools {
+    display: flex;
+  }
+  
+  /* Button styles consistent with top toolbar */
+  .bottom-toolbar .btn {
+    background-color: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--color-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+     width: 40px;
+    height: 40px;
+  }
+  
+  .bottom-toolbar .btn:hover {
+    background-color: var(--color-surface);
+    
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  [data-theme="dark"] .bottom-toolbar .btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+ 
+  /* Active state for buttons like hand tool */
+  .bottom-toolbar .btn.active {
+    background-color: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+  }
+  
+  .bottom-toolbar .btn.active:hover {
+    background-color: var(--color-primary);
+    opacity: 0.9;
+  }
+  
+  /* Snapping toggle styles */
+  .snapping-toggle {
+    display: flex;
+    align-items: center;
+  }
+  
+  .toggle-button {
+    background-color: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--color-text);
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+  }
+  
+  .toggle-button:hover {
+    background-color: var(--color-surface);
+ 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .toggle-button.active {
+    background-color: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+  }
+  
+  .toggle-button.active:hover {
+    background-color: var(--color-primary);
+    opacity: 0.9;
+  }
+  
+  @media (max-width: 768px) {
+    .bottom-toolbar {
+      flex-direction: column;
+   
+    }
+  
+    .canvas-zoom {
+      justify-content: space-between;
+    }
+  }
+  
+  
+  /* For very small screens, adjust layout further */
+  @media (max-width: 480px) {
+    .canvas-zoom span {
+      min-width: auto;
+      font-size: 12px;
+    }
+  
+    .toggle-button {
+      padding: 6px 8px;
+      font-size: 12px;
+    }
+  }
+  
+    
+ 
+ 

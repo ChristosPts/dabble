@@ -1,4 +1,4 @@
-import { Rect, Circle, Triangle, Line, IText } from 'fabric'
+import { Rect, Circle, Triangle, Line, IText, Polygon } from 'fabric'
 
 function useShapeTools(canvas, isDrawing, setIsDrawing, setActiveBrush) {
   const addShape = (Shape, properties) => {
@@ -31,6 +31,8 @@ function useShapeTools(canvas, isDrawing, setIsDrawing, setActiveBrush) {
   const addCircle = () => {
     addShape(Circle, { top: 100, left: 50, radius: 30, fill: '#fbff00', strokeWidth: 0, stroke: '#333333' })
   }
+
+ 
 
   const addLine = () => {
     if (canvas) {

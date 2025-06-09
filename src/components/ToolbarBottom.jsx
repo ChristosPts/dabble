@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import SnappingToggle from './SnappingToggle';
+import "../css/toolbar-bottom.css"
+import {
+  Hand,
+  ZoomIn,
+  ZoomOut,
+  RefreshCcw
+} from 'lucide-react';
+
 
 function ToolbarBottom({ canvas }) {
   const [zoom, setZoom] = useState(100);
@@ -234,26 +242,32 @@ function ToolbarBottom({ canvas }) {
   }
 
   return (
-    <div className="bottom-toolbar">
-      <div className="canvas-zoom">
-        <span>Zoom: {zoom}%</span>
-         
-          <button className='btn' onClick={zoomOut} title="Zoom Out">-</button>
-          <button className='btn' onClick={zoomIn} title="Zoom In">+</button>
-          <button className='btn' onClick={resetView} title="Reset View">&#x21bb;</button>
-        
-      </div>
-      
-      <button 
-        className={`btn ${isHandToolActive ? "active" : ""}`} 
-        onClick={toggleHandTool}
-        title="Hand Tool"
-      >
-        <span role="img" aria-label="Hand Tool">✋</span> 
-      </button>
+<div className="bottom-toolbar">
+  <div className='tools'>
+    <button
+      title="Hand Tool"
+      onClick={toggleHandTool}
+      className={`btn ${isHandToolActive ? "active" : ""}`}
+    >
+      <Hand size={20} />
+    </button>
+    <SnappingToggle canvas={canvas} />
+  </div>
+  
+  <div className="canvas-zoom">
+    <span>Zoom: {zoom}%</span>
+    <button className='btn' onClick={zoomOut} title="Zoom Out">
+      <ZoomOut size={20} />
+    </button>
+    <button className='btn' onClick={zoomIn} title="Zoom In">
+      <ZoomIn size={20} />
+    </button>
+    <button className='btn' onClick={resetView} title="Reset View">
+      <RefreshCcw size={20} />
+    </button>
+  </div>
+</div>
 
-      <SnappingToggle canvas={canvas} />
-    </div>
   )
 }
 

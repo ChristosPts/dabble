@@ -3,6 +3,7 @@ import { shapeConfigs, brushConfigs, defaultShapeSettings } from '../utils/shape
 import { updateObject, updateBrush, deleteSelectedObjects } from '../utils/canvasHelper';
 import { isImage } from '../utils/filterUtils';
 import ImageFilters from './ImageFilters';
+import '../css/toolbar-right.css'
 
 function ToolbarRight({ canvas, activeBrush }) {
   const [selectedObj, setSelectedObj] = useState(null);
@@ -130,6 +131,18 @@ function ToolbarRight({ canvas, activeBrush }) {
     }
   };
 
+  const incrementNumber = (key, step = 1) => {
+    const currentValue = parseFloat(settings[key]) || 0;
+    const newValue = currentValue + step;
+    handleChange(key)({ target: { type: 'number', value: newValue } });
+  };
+
+  const decrementNumber = (key, step = 1) => {
+    const currentValue = parseFloat(settings[key]) || 0;
+    const newValue = currentValue - step;
+    handleChange(key)({ target: { type: 'number', value: newValue } });
+  };
+
   const renderInput = (key) => {
     const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
 
@@ -164,7 +177,7 @@ function ToolbarRight({ canvas, activeBrush }) {
         ]
       },
       opacity: {
-        type: 'number',
+        type: 'range',
         label: 'Opacity (%)',
         min: 0,
         max: 100
@@ -202,9 +215,13 @@ function ToolbarRight({ canvas, activeBrush }) {
     switch (config.type) {
       case 'select':
         return (
-          <div key={key}>
-            {inputLabel}:
-            <select value={settings[key]} onChange={handleChange(key)}>
+          <div className="input-group" key={key}>
+            <label htmlFor={`input-${key}`}>{inputLabel}</label>
+            <select 
+              id={`input-${key}`}
+              value={settings[key]} 
+              onChange={handleChange(key)}
+            >
               {config.options.map(option => (
                 <option key={option.value} value={option.value}>{option.label}</option>
               ))}
@@ -212,18 +229,80 @@ function ToolbarRight({ canvas, activeBrush }) {
           </div>
         );
 
-      case 'number':
       case 'color':
-      case 'text':
         return (
-          <div key={key}>
-            {inputLabel}:
+          <div className="input-group" key={key}>
+            <label htmlFor={`input-${key}`}>{inputLabel}</label>
+            <div className="color-input-container">
+              <input
+                id={`input-${key}`}
+                type="color"
+                value={settings[key] || '#000000'}
+                onChange={handleChange(key)}
+              />
+              <div className="color-value">{settings[key] || '#000000'}</div>
+            </div>
+          </div>
+        );
+      
+      case 'range':
+        return (
+          <div className="input-group" key={key}>
+            <div className="input-label-with-value">
+              <label htmlFor={`input-${key}`}>{inputLabel}</label>
+              <span className="value-display">{settings[key]}</span>
+            </div>
             <input
-              type={config.type}
-              value={settings[key] || ''}
-              onChange={handleChange(key)}
+              id={`input-${key}`}
+              type="range"
               min={config.min}
               max={config.max}
+              value={settings[key] || 0}
+              onChange={handleChange(key)}
+            />
+          </div>
+        );
+
+      case 'number':
+        return (
+          <div className="input-group" key={key}>
+            <label htmlFor={`input-${key}`}>{inputLabel}</label>
+            <div className="number-input-container">
+              <button 
+                type="button" 
+                className="number-control"
+                onClick={() => decrementNumber(key)}
+              >
+                -
+              </button>
+              <input
+                id={`input-${key}`}
+                type="number"
+                value={settings[key] || ''}
+                onChange={handleChange(key)}
+                min={config.min}
+                max={config.max}
+              />
+              <button 
+                type="button" 
+                className="number-control"
+                onClick={() => incrementNumber(key)}
+              >
+                +
+              </button>
+            </div>
+          </div>
+        );
+
+      case 'text':
+        return (
+          <div className="input-group" key={key}>
+            <label htmlFor={`input-${key}`}>{inputLabel}</label>
+            <input
+              id={`input-${key}`}
+              type="text"
+              value={settings[key] || ''}
+              onChange={handleChange(key)}
             />
           </div>
         );
@@ -231,6 +310,36 @@ function ToolbarRight({ canvas, activeBrush }) {
       default:
         return null;
     }
+  };
+
+  // Group related settings
+  const groupSettings = (keys) => {
+    // Shadow settings should be in their own section
+    const shadowKeys = ['shadowColor', 'shadowOffsetX', 'shadowOffsetY', 'shadowBlur'].filter(key => 
+      keys.includes(key)
+    );
+    
+    // Remove shadow keys from the main keys
+    const mainKeys = keys.filter(key => !shadowKeys.includes(key));
+    
+    return (
+      <>
+        {/* Main settings */}
+        <div className="settings-container">
+          {mainKeys.map(renderInput)}
+        </div>
+        
+        {/* Shadow settings */}
+        {shadowKeys.length > 0 && (
+          <div className="settings-section">
+            <h2 className="settings-section-title">Shadow</h2>
+            <div className="shadow-controls">
+              {shadowKeys.map(renderInput)}
+            </div>
+          </div>
+        )}
+      </>
+    );
   };
 
   const activeConfig = isBrushActive
@@ -254,8 +363,14 @@ function ToolbarRight({ canvas, activeBrush }) {
 
       {(selectedObj || isBrushActive) ? (
         <div>
-          {activeConfig.keys.map(renderInput)}
-          {selectedObj && <button onClick={handleDelete}>Delete Object</button>}
+          {groupSettings(activeConfig.keys)}
+          
+          {selectedObj && (
+            <button className="delete-button" onClick={handleDelete}>
+             
+              Delete Object
+            </button>
+          )}
           
           {/* Add ImageFilters component when an image is selected */}
           {selectedObj && isImage(selectedObj) && (
@@ -263,7 +378,10 @@ function ToolbarRight({ canvas, activeBrush }) {
           )}
         </div>
       ) : (
-        <p>No object selected</p>
+        <div className="empty-state">
+       
+          <p>Select an object or activate a brush to see settings</p>
+        </div>
       )}
     </div>
   );
